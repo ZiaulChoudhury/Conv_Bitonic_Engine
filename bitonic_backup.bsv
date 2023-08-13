@@ -1,4 +1,4 @@
-package sumTree;
+package bitonic;
 import FIFO::*;
 import FIFOF::*;
 import datatypes::*;
@@ -7,18 +7,16 @@ import Real::*;
 import Vector::*;
 
 #define L0 8
-#define L1 4
-#define L2 2
 
 #define KERNEL 3
 
-interface SumTree;
+interface Bitonic;
         method Action put(Vector#(8, Int#(16)) datas);
         method ActionValue#(Vector#(8, Int#(16))) get;
 endinterface
 
 (*synthesize*)
-module mkSumTree(SumTree);
+module mkBitonic(Bitonic);
 
 Reg#(Int#(16)) s0[L0];
 Reg#(Int#(16)) s1[L0];
