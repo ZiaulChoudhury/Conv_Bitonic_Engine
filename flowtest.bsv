@@ -6,7 +6,7 @@ import FIFO:: *;
 import FIFOF:: *;
 import bitonic::*;
 
-#define L0 64
+#define L0 128
 (*synthesize*)
 module mkFlowTest();
 

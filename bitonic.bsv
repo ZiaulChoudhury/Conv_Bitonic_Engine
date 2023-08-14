@@ -5,7 +5,7 @@ import datatypes::*;
 import SpecialFIFOs:: * ;
 import Real::*;
 import Vector::*;
-#define L0 64
+#define L0 128
 
 interface Bitonic;
         method Action put(Vector#(L0, Int#(16)) datas);
@@ -36,6 +36,13 @@ Reg#(Int#(16)) s18[L0];
 Reg#(Int#(16)) s19[L0];
 Reg#(Int#(16)) s20[L0];
 Reg#(Int#(16)) s21[L0];
+Reg#(Int#(16)) s22[L0];
+Reg#(Int#(16)) s23[L0];
+Reg#(Int#(16)) s24[L0];
+Reg#(Int#(16)) s25[L0];
+Reg#(Int#(16)) s26[L0];
+Reg#(Int#(16)) s27[L0];
+Reg#(Int#(16)) s28[L0];
 
 for(int i =0; i<L0; i = i + 1) begin
 s0[i] <- mkReg(0);
@@ -60,6 +67,13 @@ s18[i] <- mkReg(0);
 s19[i] <- mkReg(0);
 s20[i] <- mkReg(0);
 s21[i] <- mkReg(0);
+s22[i] <- mkReg(0);
+s23[i] <- mkReg(0);
+s24[i] <- mkReg(0);
+s25[i] <- mkReg(0);
+s26[i] <- mkReg(0);
+s27[i] <- mkReg(0);
+s28[i] <- mkReg(0);
 end
 FIFOF#(Bit#(1)) p0 <- mkPipelineFIFOF;
 FIFOF#(Bit#(1)) p1 <- mkPipelineFIFOF;
@@ -83,17 +97,28 @@ FIFOF#(Bit#(1)) p18 <- mkPipelineFIFOF;
 FIFOF#(Bit#(1)) p19 <- mkPipelineFIFOF;
 FIFOF#(Bit#(1)) p20 <- mkPipelineFIFOF;
 FIFOF#(Bit#(1)) p21 <- mkPipelineFIFOF;
+FIFOF#(Bit#(1)) p22 <- mkPipelineFIFOF;
+FIFOF#(Bit#(1)) p23 <- mkPipelineFIFOF;
+FIFOF#(Bit#(1)) p24 <- mkPipelineFIFOF;
+FIFOF#(Bit#(1)) p25 <- mkPipelineFIFOF;
+FIFOF#(Bit#(1)) p26 <- mkPipelineFIFOF;
+FIFOF#(Bit#(1)) p27 <- mkPipelineFIFOF;
+FIFOF#(Bit#(1)) p28 <- mkPipelineFIFOF;
 rule _Q01;
 	p0.deq;
 	let mod = 2;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/1)%2 == 0) begin
-			s1[mod*i+0] <= min(s0[mod*i+0] , s0[mod*i+0+mod/2]);
-			s1[mod*i+0+mod/2] <= max(s0[mod*i+0] , s0[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s1[mod*i+j] <= min(s0[mod*i+j] , s0[mod*i+j+mod/2]);
+			s1[mod*i+j+mod/2] <= max(s0[mod*i+j] , s0[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s1[mod*i+0] <= max(s0[mod*i+0] , s0[mod*i+0+mod/2]);
-			s1[mod*i+0+mod/2] <= min(s0[mod*i+0] , s0[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s1[mod*i+j] <= max(s0[mod*i+j] , s0[mod*i+j+mod/2]);
+			s1[mod*i+j+mod/2] <= min(s0[mod*i+j] , s0[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p1.enq(1);
@@ -103,16 +128,16 @@ rule _Q12;
 	let mod = 4;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/1)%2 == 0) begin
-			s2[mod*i+0] <= min(s1[mod*i+0] , s1[mod*i+0+mod/2]);
-			s2[mod*i+0+mod/2] <= max(s1[mod*i+0] , s1[mod*i+0+mod/2]);
-			s2[mod*i+1] <= min(s1[mod*i+1] , s1[mod*i+1+mod/2]);
-			s2[mod*i+1+mod/2] <= max(s1[mod*i+1] , s1[mod*i+1+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s2[mod*i+j] <= min(s1[mod*i+j] , s1[mod*i+j+mod/2]);
+			s2[mod*i+j+mod/2] <= max(s1[mod*i+j] , s1[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s2[mod*i+0] <= max(s1[mod*i+0] , s1[mod*i+0+mod/2]);
-			s2[mod*i+0+mod/2] <= min(s1[mod*i+0] , s1[mod*i+0+mod/2]);
-			s2[mod*i+1] <= max(s1[mod*i+1] , s1[mod*i+1+mod/2]);
-			s2[mod*i+1+mod/2] <= min(s1[mod*i+1] , s1[mod*i+1+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s2[mod*i+j] <= max(s1[mod*i+j] , s1[mod*i+j+mod/2]);
+			s2[mod*i+j+mod/2] <= min(s1[mod*i+j] , s1[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p2.enq(1);
@@ -122,12 +147,16 @@ rule _Q11;
 	let mod = 2;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/2)%2 == 0) begin
-			s3[mod*i+0] <= min(s2[mod*i+0] , s2[mod*i+0+mod/2]);
-			s3[mod*i+0+mod/2] <= max(s2[mod*i+0] , s2[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s3[mod*i+j] <= min(s2[mod*i+j] , s2[mod*i+j+mod/2]);
+			s3[mod*i+j+mod/2] <= max(s2[mod*i+j] , s2[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s3[mod*i+0] <= max(s2[mod*i+0] , s2[mod*i+0+mod/2]);
-			s3[mod*i+0+mod/2] <= min(s2[mod*i+0] , s2[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s3[mod*i+j] <= max(s2[mod*i+j] , s2[mod*i+j+mod/2]);
+			s3[mod*i+j+mod/2] <= min(s2[mod*i+j] , s2[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p3.enq(1);
@@ -137,24 +166,16 @@ rule _Q23;
 	let mod = 8;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/1)%2 == 0) begin
-			s4[mod*i+0] <= min(s3[mod*i+0] , s3[mod*i+0+mod/2]);
-			s4[mod*i+0+mod/2] <= max(s3[mod*i+0] , s3[mod*i+0+mod/2]);
-			s4[mod*i+1] <= min(s3[mod*i+1] , s3[mod*i+1+mod/2]);
-			s4[mod*i+1+mod/2] <= max(s3[mod*i+1] , s3[mod*i+1+mod/2]);
-			s4[mod*i+2] <= min(s3[mod*i+2] , s3[mod*i+2+mod/2]);
-			s4[mod*i+2+mod/2] <= max(s3[mod*i+2] , s3[mod*i+2+mod/2]);
-			s4[mod*i+3] <= min(s3[mod*i+3] , s3[mod*i+3+mod/2]);
-			s4[mod*i+3+mod/2] <= max(s3[mod*i+3] , s3[mod*i+3+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s4[mod*i+j] <= min(s3[mod*i+j] , s3[mod*i+j+mod/2]);
+			s4[mod*i+j+mod/2] <= max(s3[mod*i+j] , s3[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s4[mod*i+0] <= max(s3[mod*i+0] , s3[mod*i+0+mod/2]);
-			s4[mod*i+0+mod/2] <= min(s3[mod*i+0] , s3[mod*i+0+mod/2]);
-			s4[mod*i+1] <= max(s3[mod*i+1] , s3[mod*i+1+mod/2]);
-			s4[mod*i+1+mod/2] <= min(s3[mod*i+1] , s3[mod*i+1+mod/2]);
-			s4[mod*i+2] <= max(s3[mod*i+2] , s3[mod*i+2+mod/2]);
-			s4[mod*i+2+mod/2] <= min(s3[mod*i+2] , s3[mod*i+2+mod/2]);
-			s4[mod*i+3] <= max(s3[mod*i+3] , s3[mod*i+3+mod/2]);
-			s4[mod*i+3+mod/2] <= min(s3[mod*i+3] , s3[mod*i+3+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s4[mod*i+j] <= max(s3[mod*i+j] , s3[mod*i+j+mod/2]);
+			s4[mod*i+j+mod/2] <= min(s3[mod*i+j] , s3[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p4.enq(1);
@@ -164,16 +185,16 @@ rule _Q22;
 	let mod = 4;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/2)%2 == 0) begin
-			s5[mod*i+0] <= min(s4[mod*i+0] , s4[mod*i+0+mod/2]);
-			s5[mod*i+0+mod/2] <= max(s4[mod*i+0] , s4[mod*i+0+mod/2]);
-			s5[mod*i+1] <= min(s4[mod*i+1] , s4[mod*i+1+mod/2]);
-			s5[mod*i+1+mod/2] <= max(s4[mod*i+1] , s4[mod*i+1+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s5[mod*i+j] <= min(s4[mod*i+j] , s4[mod*i+j+mod/2]);
+			s5[mod*i+j+mod/2] <= max(s4[mod*i+j] , s4[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s5[mod*i+0] <= max(s4[mod*i+0] , s4[mod*i+0+mod/2]);
-			s5[mod*i+0+mod/2] <= min(s4[mod*i+0] , s4[mod*i+0+mod/2]);
-			s5[mod*i+1] <= max(s4[mod*i+1] , s4[mod*i+1+mod/2]);
-			s5[mod*i+1+mod/2] <= min(s4[mod*i+1] , s4[mod*i+1+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s5[mod*i+j] <= max(s4[mod*i+j] , s4[mod*i+j+mod/2]);
+			s5[mod*i+j+mod/2] <= min(s4[mod*i+j] , s4[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p5.enq(1);
@@ -183,12 +204,16 @@ rule _Q21;
 	let mod = 2;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/4)%2 == 0) begin
-			s6[mod*i+0] <= min(s5[mod*i+0] , s5[mod*i+0+mod/2]);
-			s6[mod*i+0+mod/2] <= max(s5[mod*i+0] , s5[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s6[mod*i+j] <= min(s5[mod*i+j] , s5[mod*i+j+mod/2]);
+			s6[mod*i+j+mod/2] <= max(s5[mod*i+j] , s5[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s6[mod*i+0] <= max(s5[mod*i+0] , s5[mod*i+0+mod/2]);
-			s6[mod*i+0+mod/2] <= min(s5[mod*i+0] , s5[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s6[mod*i+j] <= max(s5[mod*i+j] , s5[mod*i+j+mod/2]);
+			s6[mod*i+j+mod/2] <= min(s5[mod*i+j] , s5[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p6.enq(1);
@@ -198,40 +223,16 @@ rule _Q34;
 	let mod = 16;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/1)%2 == 0) begin
-			s7[mod*i+0] <= min(s6[mod*i+0] , s6[mod*i+0+mod/2]);
-			s7[mod*i+0+mod/2] <= max(s6[mod*i+0] , s6[mod*i+0+mod/2]);
-			s7[mod*i+1] <= min(s6[mod*i+1] , s6[mod*i+1+mod/2]);
-			s7[mod*i+1+mod/2] <= max(s6[mod*i+1] , s6[mod*i+1+mod/2]);
-			s7[mod*i+2] <= min(s6[mod*i+2] , s6[mod*i+2+mod/2]);
-			s7[mod*i+2+mod/2] <= max(s6[mod*i+2] , s6[mod*i+2+mod/2]);
-			s7[mod*i+3] <= min(s6[mod*i+3] , s6[mod*i+3+mod/2]);
-			s7[mod*i+3+mod/2] <= max(s6[mod*i+3] , s6[mod*i+3+mod/2]);
-			s7[mod*i+4] <= min(s6[mod*i+4] , s6[mod*i+4+mod/2]);
-			s7[mod*i+4+mod/2] <= max(s6[mod*i+4] , s6[mod*i+4+mod/2]);
-			s7[mod*i+5] <= min(s6[mod*i+5] , s6[mod*i+5+mod/2]);
-			s7[mod*i+5+mod/2] <= max(s6[mod*i+5] , s6[mod*i+5+mod/2]);
-			s7[mod*i+6] <= min(s6[mod*i+6] , s6[mod*i+6+mod/2]);
-			s7[mod*i+6+mod/2] <= max(s6[mod*i+6] , s6[mod*i+6+mod/2]);
-			s7[mod*i+7] <= min(s6[mod*i+7] , s6[mod*i+7+mod/2]);
-			s7[mod*i+7+mod/2] <= max(s6[mod*i+7] , s6[mod*i+7+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s7[mod*i+j] <= min(s6[mod*i+j] , s6[mod*i+j+mod/2]);
+			s7[mod*i+j+mod/2] <= max(s6[mod*i+j] , s6[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s7[mod*i+0] <= max(s6[mod*i+0] , s6[mod*i+0+mod/2]);
-			s7[mod*i+0+mod/2] <= min(s6[mod*i+0] , s6[mod*i+0+mod/2]);
-			s7[mod*i+1] <= max(s6[mod*i+1] , s6[mod*i+1+mod/2]);
-			s7[mod*i+1+mod/2] <= min(s6[mod*i+1] , s6[mod*i+1+mod/2]);
-			s7[mod*i+2] <= max(s6[mod*i+2] , s6[mod*i+2+mod/2]);
-			s7[mod*i+2+mod/2] <= min(s6[mod*i+2] , s6[mod*i+2+mod/2]);
-			s7[mod*i+3] <= max(s6[mod*i+3] , s6[mod*i+3+mod/2]);
-			s7[mod*i+3+mod/2] <= min(s6[mod*i+3] , s6[mod*i+3+mod/2]);
-			s7[mod*i+4] <= max(s6[mod*i+4] , s6[mod*i+4+mod/2]);
-			s7[mod*i+4+mod/2] <= min(s6[mod*i+4] , s6[mod*i+4+mod/2]);
-			s7[mod*i+5] <= max(s6[mod*i+5] , s6[mod*i+5+mod/2]);
-			s7[mod*i+5+mod/2] <= min(s6[mod*i+5] , s6[mod*i+5+mod/2]);
-			s7[mod*i+6] <= max(s6[mod*i+6] , s6[mod*i+6+mod/2]);
-			s7[mod*i+6+mod/2] <= min(s6[mod*i+6] , s6[mod*i+6+mod/2]);
-			s7[mod*i+7] <= max(s6[mod*i+7] , s6[mod*i+7+mod/2]);
-			s7[mod*i+7+mod/2] <= min(s6[mod*i+7] , s6[mod*i+7+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s7[mod*i+j] <= max(s6[mod*i+j] , s6[mod*i+j+mod/2]);
+			s7[mod*i+j+mod/2] <= min(s6[mod*i+j] , s6[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p7.enq(1);
@@ -241,24 +242,16 @@ rule _Q33;
 	let mod = 8;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/2)%2 == 0) begin
-			s8[mod*i+0] <= min(s7[mod*i+0] , s7[mod*i+0+mod/2]);
-			s8[mod*i+0+mod/2] <= max(s7[mod*i+0] , s7[mod*i+0+mod/2]);
-			s8[mod*i+1] <= min(s7[mod*i+1] , s7[mod*i+1+mod/2]);
-			s8[mod*i+1+mod/2] <= max(s7[mod*i+1] , s7[mod*i+1+mod/2]);
-			s8[mod*i+2] <= min(s7[mod*i+2] , s7[mod*i+2+mod/2]);
-			s8[mod*i+2+mod/2] <= max(s7[mod*i+2] , s7[mod*i+2+mod/2]);
-			s8[mod*i+3] <= min(s7[mod*i+3] , s7[mod*i+3+mod/2]);
-			s8[mod*i+3+mod/2] <= max(s7[mod*i+3] , s7[mod*i+3+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s8[mod*i+j] <= min(s7[mod*i+j] , s7[mod*i+j+mod/2]);
+			s8[mod*i+j+mod/2] <= max(s7[mod*i+j] , s7[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s8[mod*i+0] <= max(s7[mod*i+0] , s7[mod*i+0+mod/2]);
-			s8[mod*i+0+mod/2] <= min(s7[mod*i+0] , s7[mod*i+0+mod/2]);
-			s8[mod*i+1] <= max(s7[mod*i+1] , s7[mod*i+1+mod/2]);
-			s8[mod*i+1+mod/2] <= min(s7[mod*i+1] , s7[mod*i+1+mod/2]);
-			s8[mod*i+2] <= max(s7[mod*i+2] , s7[mod*i+2+mod/2]);
-			s8[mod*i+2+mod/2] <= min(s7[mod*i+2] , s7[mod*i+2+mod/2]);
-			s8[mod*i+3] <= max(s7[mod*i+3] , s7[mod*i+3+mod/2]);
-			s8[mod*i+3+mod/2] <= min(s7[mod*i+3] , s7[mod*i+3+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s8[mod*i+j] <= max(s7[mod*i+j] , s7[mod*i+j+mod/2]);
+			s8[mod*i+j+mod/2] <= min(s7[mod*i+j] , s7[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p8.enq(1);
@@ -268,16 +261,16 @@ rule _Q32;
 	let mod = 4;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/4)%2 == 0) begin
-			s9[mod*i+0] <= min(s8[mod*i+0] , s8[mod*i+0+mod/2]);
-			s9[mod*i+0+mod/2] <= max(s8[mod*i+0] , s8[mod*i+0+mod/2]);
-			s9[mod*i+1] <= min(s8[mod*i+1] , s8[mod*i+1+mod/2]);
-			s9[mod*i+1+mod/2] <= max(s8[mod*i+1] , s8[mod*i+1+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s9[mod*i+j] <= min(s8[mod*i+j] , s8[mod*i+j+mod/2]);
+			s9[mod*i+j+mod/2] <= max(s8[mod*i+j] , s8[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s9[mod*i+0] <= max(s8[mod*i+0] , s8[mod*i+0+mod/2]);
-			s9[mod*i+0+mod/2] <= min(s8[mod*i+0] , s8[mod*i+0+mod/2]);
-			s9[mod*i+1] <= max(s8[mod*i+1] , s8[mod*i+1+mod/2]);
-			s9[mod*i+1+mod/2] <= min(s8[mod*i+1] , s8[mod*i+1+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s9[mod*i+j] <= max(s8[mod*i+j] , s8[mod*i+j+mod/2]);
+			s9[mod*i+j+mod/2] <= min(s8[mod*i+j] , s8[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p9.enq(1);
@@ -287,12 +280,16 @@ rule _Q31;
 	let mod = 2;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/8)%2 == 0) begin
-			s10[mod*i+0] <= min(s9[mod*i+0] , s9[mod*i+0+mod/2]);
-			s10[mod*i+0+mod/2] <= max(s9[mod*i+0] , s9[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s10[mod*i+j] <= min(s9[mod*i+j] , s9[mod*i+j+mod/2]);
+			s10[mod*i+j+mod/2] <= max(s9[mod*i+j] , s9[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s10[mod*i+0] <= max(s9[mod*i+0] , s9[mod*i+0+mod/2]);
-			s10[mod*i+0+mod/2] <= min(s9[mod*i+0] , s9[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s10[mod*i+j] <= max(s9[mod*i+j] , s9[mod*i+j+mod/2]);
+			s10[mod*i+j+mod/2] <= min(s9[mod*i+j] , s9[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p10.enq(1);
@@ -302,72 +299,16 @@ rule _Q45;
 	let mod = 32;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/1)%2 == 0) begin
-			s11[mod*i+0] <= min(s10[mod*i+0] , s10[mod*i+0+mod/2]);
-			s11[mod*i+0+mod/2] <= max(s10[mod*i+0] , s10[mod*i+0+mod/2]);
-			s11[mod*i+1] <= min(s10[mod*i+1] , s10[mod*i+1+mod/2]);
-			s11[mod*i+1+mod/2] <= max(s10[mod*i+1] , s10[mod*i+1+mod/2]);
-			s11[mod*i+2] <= min(s10[mod*i+2] , s10[mod*i+2+mod/2]);
-			s11[mod*i+2+mod/2] <= max(s10[mod*i+2] , s10[mod*i+2+mod/2]);
-			s11[mod*i+3] <= min(s10[mod*i+3] , s10[mod*i+3+mod/2]);
-			s11[mod*i+3+mod/2] <= max(s10[mod*i+3] , s10[mod*i+3+mod/2]);
-			s11[mod*i+4] <= min(s10[mod*i+4] , s10[mod*i+4+mod/2]);
-			s11[mod*i+4+mod/2] <= max(s10[mod*i+4] , s10[mod*i+4+mod/2]);
-			s11[mod*i+5] <= min(s10[mod*i+5] , s10[mod*i+5+mod/2]);
-			s11[mod*i+5+mod/2] <= max(s10[mod*i+5] , s10[mod*i+5+mod/2]);
-			s11[mod*i+6] <= min(s10[mod*i+6] , s10[mod*i+6+mod/2]);
-			s11[mod*i+6+mod/2] <= max(s10[mod*i+6] , s10[mod*i+6+mod/2]);
-			s11[mod*i+7] <= min(s10[mod*i+7] , s10[mod*i+7+mod/2]);
-			s11[mod*i+7+mod/2] <= max(s10[mod*i+7] , s10[mod*i+7+mod/2]);
-			s11[mod*i+8] <= min(s10[mod*i+8] , s10[mod*i+8+mod/2]);
-			s11[mod*i+8+mod/2] <= max(s10[mod*i+8] , s10[mod*i+8+mod/2]);
-			s11[mod*i+9] <= min(s10[mod*i+9] , s10[mod*i+9+mod/2]);
-			s11[mod*i+9+mod/2] <= max(s10[mod*i+9] , s10[mod*i+9+mod/2]);
-			s11[mod*i+10] <= min(s10[mod*i+10] , s10[mod*i+10+mod/2]);
-			s11[mod*i+10+mod/2] <= max(s10[mod*i+10] , s10[mod*i+10+mod/2]);
-			s11[mod*i+11] <= min(s10[mod*i+11] , s10[mod*i+11+mod/2]);
-			s11[mod*i+11+mod/2] <= max(s10[mod*i+11] , s10[mod*i+11+mod/2]);
-			s11[mod*i+12] <= min(s10[mod*i+12] , s10[mod*i+12+mod/2]);
-			s11[mod*i+12+mod/2] <= max(s10[mod*i+12] , s10[mod*i+12+mod/2]);
-			s11[mod*i+13] <= min(s10[mod*i+13] , s10[mod*i+13+mod/2]);
-			s11[mod*i+13+mod/2] <= max(s10[mod*i+13] , s10[mod*i+13+mod/2]);
-			s11[mod*i+14] <= min(s10[mod*i+14] , s10[mod*i+14+mod/2]);
-			s11[mod*i+14+mod/2] <= max(s10[mod*i+14] , s10[mod*i+14+mod/2]);
-			s11[mod*i+15] <= min(s10[mod*i+15] , s10[mod*i+15+mod/2]);
-			s11[mod*i+15+mod/2] <= max(s10[mod*i+15] , s10[mod*i+15+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s11[mod*i+j] <= min(s10[mod*i+j] , s10[mod*i+j+mod/2]);
+			s11[mod*i+j+mod/2] <= max(s10[mod*i+j] , s10[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s11[mod*i+0] <= max(s10[mod*i+0] , s10[mod*i+0+mod/2]);
-			s11[mod*i+0+mod/2] <= min(s10[mod*i+0] , s10[mod*i+0+mod/2]);
-			s11[mod*i+1] <= max(s10[mod*i+1] , s10[mod*i+1+mod/2]);
-			s11[mod*i+1+mod/2] <= min(s10[mod*i+1] , s10[mod*i+1+mod/2]);
-			s11[mod*i+2] <= max(s10[mod*i+2] , s10[mod*i+2+mod/2]);
-			s11[mod*i+2+mod/2] <= min(s10[mod*i+2] , s10[mod*i+2+mod/2]);
-			s11[mod*i+3] <= max(s10[mod*i+3] , s10[mod*i+3+mod/2]);
-			s11[mod*i+3+mod/2] <= min(s10[mod*i+3] , s10[mod*i+3+mod/2]);
-			s11[mod*i+4] <= max(s10[mod*i+4] , s10[mod*i+4+mod/2]);
-			s11[mod*i+4+mod/2] <= min(s10[mod*i+4] , s10[mod*i+4+mod/2]);
-			s11[mod*i+5] <= max(s10[mod*i+5] , s10[mod*i+5+mod/2]);
-			s11[mod*i+5+mod/2] <= min(s10[mod*i+5] , s10[mod*i+5+mod/2]);
-			s11[mod*i+6] <= max(s10[mod*i+6] , s10[mod*i+6+mod/2]);
-			s11[mod*i+6+mod/2] <= min(s10[mod*i+6] , s10[mod*i+6+mod/2]);
-			s11[mod*i+7] <= max(s10[mod*i+7] , s10[mod*i+7+mod/2]);
-			s11[mod*i+7+mod/2] <= min(s10[mod*i+7] , s10[mod*i+7+mod/2]);
-			s11[mod*i+8] <= max(s10[mod*i+8] , s10[mod*i+8+mod/2]);
-			s11[mod*i+8+mod/2] <= min(s10[mod*i+8] , s10[mod*i+8+mod/2]);
-			s11[mod*i+9] <= max(s10[mod*i+9] , s10[mod*i+9+mod/2]);
-			s11[mod*i+9+mod/2] <= min(s10[mod*i+9] , s10[mod*i+9+mod/2]);
-			s11[mod*i+10] <= max(s10[mod*i+10] , s10[mod*i+10+mod/2]);
-			s11[mod*i+10+mod/2] <= min(s10[mod*i+10] , s10[mod*i+10+mod/2]);
-			s11[mod*i+11] <= max(s10[mod*i+11] , s10[mod*i+11+mod/2]);
-			s11[mod*i+11+mod/2] <= min(s10[mod*i+11] , s10[mod*i+11+mod/2]);
-			s11[mod*i+12] <= max(s10[mod*i+12] , s10[mod*i+12+mod/2]);
-			s11[mod*i+12+mod/2] <= min(s10[mod*i+12] , s10[mod*i+12+mod/2]);
-			s11[mod*i+13] <= max(s10[mod*i+13] , s10[mod*i+13+mod/2]);
-			s11[mod*i+13+mod/2] <= min(s10[mod*i+13] , s10[mod*i+13+mod/2]);
-			s11[mod*i+14] <= max(s10[mod*i+14] , s10[mod*i+14+mod/2]);
-			s11[mod*i+14+mod/2] <= min(s10[mod*i+14] , s10[mod*i+14+mod/2]);
-			s11[mod*i+15] <= max(s10[mod*i+15] , s10[mod*i+15+mod/2]);
-			s11[mod*i+15+mod/2] <= min(s10[mod*i+15] , s10[mod*i+15+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s11[mod*i+j] <= max(s10[mod*i+j] , s10[mod*i+j+mod/2]);
+			s11[mod*i+j+mod/2] <= min(s10[mod*i+j] , s10[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p11.enq(1);
@@ -377,40 +318,16 @@ rule _Q44;
 	let mod = 16;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/2)%2 == 0) begin
-			s12[mod*i+0] <= min(s11[mod*i+0] , s11[mod*i+0+mod/2]);
-			s12[mod*i+0+mod/2] <= max(s11[mod*i+0] , s11[mod*i+0+mod/2]);
-			s12[mod*i+1] <= min(s11[mod*i+1] , s11[mod*i+1+mod/2]);
-			s12[mod*i+1+mod/2] <= max(s11[mod*i+1] , s11[mod*i+1+mod/2]);
-			s12[mod*i+2] <= min(s11[mod*i+2] , s11[mod*i+2+mod/2]);
-			s12[mod*i+2+mod/2] <= max(s11[mod*i+2] , s11[mod*i+2+mod/2]);
-			s12[mod*i+3] <= min(s11[mod*i+3] , s11[mod*i+3+mod/2]);
-			s12[mod*i+3+mod/2] <= max(s11[mod*i+3] , s11[mod*i+3+mod/2]);
-			s12[mod*i+4] <= min(s11[mod*i+4] , s11[mod*i+4+mod/2]);
-			s12[mod*i+4+mod/2] <= max(s11[mod*i+4] , s11[mod*i+4+mod/2]);
-			s12[mod*i+5] <= min(s11[mod*i+5] , s11[mod*i+5+mod/2]);
-			s12[mod*i+5+mod/2] <= max(s11[mod*i+5] , s11[mod*i+5+mod/2]);
-			s12[mod*i+6] <= min(s11[mod*i+6] , s11[mod*i+6+mod/2]);
-			s12[mod*i+6+mod/2] <= max(s11[mod*i+6] , s11[mod*i+6+mod/2]);
-			s12[mod*i+7] <= min(s11[mod*i+7] , s11[mod*i+7+mod/2]);
-			s12[mod*i+7+mod/2] <= max(s11[mod*i+7] , s11[mod*i+7+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s12[mod*i+j] <= min(s11[mod*i+j] , s11[mod*i+j+mod/2]);
+			s12[mod*i+j+mod/2] <= max(s11[mod*i+j] , s11[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s12[mod*i+0] <= max(s11[mod*i+0] , s11[mod*i+0+mod/2]);
-			s12[mod*i+0+mod/2] <= min(s11[mod*i+0] , s11[mod*i+0+mod/2]);
-			s12[mod*i+1] <= max(s11[mod*i+1] , s11[mod*i+1+mod/2]);
-			s12[mod*i+1+mod/2] <= min(s11[mod*i+1] , s11[mod*i+1+mod/2]);
-			s12[mod*i+2] <= max(s11[mod*i+2] , s11[mod*i+2+mod/2]);
-			s12[mod*i+2+mod/2] <= min(s11[mod*i+2] , s11[mod*i+2+mod/2]);
-			s12[mod*i+3] <= max(s11[mod*i+3] , s11[mod*i+3+mod/2]);
-			s12[mod*i+3+mod/2] <= min(s11[mod*i+3] , s11[mod*i+3+mod/2]);
-			s12[mod*i+4] <= max(s11[mod*i+4] , s11[mod*i+4+mod/2]);
-			s12[mod*i+4+mod/2] <= min(s11[mod*i+4] , s11[mod*i+4+mod/2]);
-			s12[mod*i+5] <= max(s11[mod*i+5] , s11[mod*i+5+mod/2]);
-			s12[mod*i+5+mod/2] <= min(s11[mod*i+5] , s11[mod*i+5+mod/2]);
-			s12[mod*i+6] <= max(s11[mod*i+6] , s11[mod*i+6+mod/2]);
-			s12[mod*i+6+mod/2] <= min(s11[mod*i+6] , s11[mod*i+6+mod/2]);
-			s12[mod*i+7] <= max(s11[mod*i+7] , s11[mod*i+7+mod/2]);
-			s12[mod*i+7+mod/2] <= min(s11[mod*i+7] , s11[mod*i+7+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s12[mod*i+j] <= max(s11[mod*i+j] , s11[mod*i+j+mod/2]);
+			s12[mod*i+j+mod/2] <= min(s11[mod*i+j] , s11[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p12.enq(1);
@@ -420,24 +337,16 @@ rule _Q43;
 	let mod = 8;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/4)%2 == 0) begin
-			s13[mod*i+0] <= min(s12[mod*i+0] , s12[mod*i+0+mod/2]);
-			s13[mod*i+0+mod/2] <= max(s12[mod*i+0] , s12[mod*i+0+mod/2]);
-			s13[mod*i+1] <= min(s12[mod*i+1] , s12[mod*i+1+mod/2]);
-			s13[mod*i+1+mod/2] <= max(s12[mod*i+1] , s12[mod*i+1+mod/2]);
-			s13[mod*i+2] <= min(s12[mod*i+2] , s12[mod*i+2+mod/2]);
-			s13[mod*i+2+mod/2] <= max(s12[mod*i+2] , s12[mod*i+2+mod/2]);
-			s13[mod*i+3] <= min(s12[mod*i+3] , s12[mod*i+3+mod/2]);
-			s13[mod*i+3+mod/2] <= max(s12[mod*i+3] , s12[mod*i+3+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s13[mod*i+j] <= min(s12[mod*i+j] , s12[mod*i+j+mod/2]);
+			s13[mod*i+j+mod/2] <= max(s12[mod*i+j] , s12[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s13[mod*i+0] <= max(s12[mod*i+0] , s12[mod*i+0+mod/2]);
-			s13[mod*i+0+mod/2] <= min(s12[mod*i+0] , s12[mod*i+0+mod/2]);
-			s13[mod*i+1] <= max(s12[mod*i+1] , s12[mod*i+1+mod/2]);
-			s13[mod*i+1+mod/2] <= min(s12[mod*i+1] , s12[mod*i+1+mod/2]);
-			s13[mod*i+2] <= max(s12[mod*i+2] , s12[mod*i+2+mod/2]);
-			s13[mod*i+2+mod/2] <= min(s12[mod*i+2] , s12[mod*i+2+mod/2]);
-			s13[mod*i+3] <= max(s12[mod*i+3] , s12[mod*i+3+mod/2]);
-			s13[mod*i+3+mod/2] <= min(s12[mod*i+3] , s12[mod*i+3+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s13[mod*i+j] <= max(s12[mod*i+j] , s12[mod*i+j+mod/2]);
+			s13[mod*i+j+mod/2] <= min(s12[mod*i+j] , s12[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p13.enq(1);
@@ -447,16 +356,16 @@ rule _Q42;
 	let mod = 4;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/8)%2 == 0) begin
-			s14[mod*i+0] <= min(s13[mod*i+0] , s13[mod*i+0+mod/2]);
-			s14[mod*i+0+mod/2] <= max(s13[mod*i+0] , s13[mod*i+0+mod/2]);
-			s14[mod*i+1] <= min(s13[mod*i+1] , s13[mod*i+1+mod/2]);
-			s14[mod*i+1+mod/2] <= max(s13[mod*i+1] , s13[mod*i+1+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s14[mod*i+j] <= min(s13[mod*i+j] , s13[mod*i+j+mod/2]);
+			s14[mod*i+j+mod/2] <= max(s13[mod*i+j] , s13[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s14[mod*i+0] <= max(s13[mod*i+0] , s13[mod*i+0+mod/2]);
-			s14[mod*i+0+mod/2] <= min(s13[mod*i+0] , s13[mod*i+0+mod/2]);
-			s14[mod*i+1] <= max(s13[mod*i+1] , s13[mod*i+1+mod/2]);
-			s14[mod*i+1+mod/2] <= min(s13[mod*i+1] , s13[mod*i+1+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s14[mod*i+j] <= max(s13[mod*i+j] , s13[mod*i+j+mod/2]);
+			s14[mod*i+j+mod/2] <= min(s13[mod*i+j] , s13[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p14.enq(1);
@@ -466,12 +375,16 @@ rule _Q41;
 	let mod = 2;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/16)%2 == 0) begin
-			s15[mod*i+0] <= min(s14[mod*i+0] , s14[mod*i+0+mod/2]);
-			s15[mod*i+0+mod/2] <= max(s14[mod*i+0] , s14[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s15[mod*i+j] <= min(s14[mod*i+j] , s14[mod*i+j+mod/2]);
+			s15[mod*i+j+mod/2] <= max(s14[mod*i+j] , s14[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s15[mod*i+0] <= max(s14[mod*i+0] , s14[mod*i+0+mod/2]);
-			s15[mod*i+0+mod/2] <= min(s14[mod*i+0] , s14[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s15[mod*i+j] <= max(s14[mod*i+j] , s14[mod*i+j+mod/2]);
+			s15[mod*i+j+mod/2] <= min(s14[mod*i+j] , s14[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p15.enq(1);
@@ -481,136 +394,16 @@ rule _Q56;
 	let mod = 64;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/1)%2 == 0) begin
-			s16[mod*i+0] <= min(s15[mod*i+0] , s15[mod*i+0+mod/2]);
-			s16[mod*i+0+mod/2] <= max(s15[mod*i+0] , s15[mod*i+0+mod/2]);
-			s16[mod*i+1] <= min(s15[mod*i+1] , s15[mod*i+1+mod/2]);
-			s16[mod*i+1+mod/2] <= max(s15[mod*i+1] , s15[mod*i+1+mod/2]);
-			s16[mod*i+2] <= min(s15[mod*i+2] , s15[mod*i+2+mod/2]);
-			s16[mod*i+2+mod/2] <= max(s15[mod*i+2] , s15[mod*i+2+mod/2]);
-			s16[mod*i+3] <= min(s15[mod*i+3] , s15[mod*i+3+mod/2]);
-			s16[mod*i+3+mod/2] <= max(s15[mod*i+3] , s15[mod*i+3+mod/2]);
-			s16[mod*i+4] <= min(s15[mod*i+4] , s15[mod*i+4+mod/2]);
-			s16[mod*i+4+mod/2] <= max(s15[mod*i+4] , s15[mod*i+4+mod/2]);
-			s16[mod*i+5] <= min(s15[mod*i+5] , s15[mod*i+5+mod/2]);
-			s16[mod*i+5+mod/2] <= max(s15[mod*i+5] , s15[mod*i+5+mod/2]);
-			s16[mod*i+6] <= min(s15[mod*i+6] , s15[mod*i+6+mod/2]);
-			s16[mod*i+6+mod/2] <= max(s15[mod*i+6] , s15[mod*i+6+mod/2]);
-			s16[mod*i+7] <= min(s15[mod*i+7] , s15[mod*i+7+mod/2]);
-			s16[mod*i+7+mod/2] <= max(s15[mod*i+7] , s15[mod*i+7+mod/2]);
-			s16[mod*i+8] <= min(s15[mod*i+8] , s15[mod*i+8+mod/2]);
-			s16[mod*i+8+mod/2] <= max(s15[mod*i+8] , s15[mod*i+8+mod/2]);
-			s16[mod*i+9] <= min(s15[mod*i+9] , s15[mod*i+9+mod/2]);
-			s16[mod*i+9+mod/2] <= max(s15[mod*i+9] , s15[mod*i+9+mod/2]);
-			s16[mod*i+10] <= min(s15[mod*i+10] , s15[mod*i+10+mod/2]);
-			s16[mod*i+10+mod/2] <= max(s15[mod*i+10] , s15[mod*i+10+mod/2]);
-			s16[mod*i+11] <= min(s15[mod*i+11] , s15[mod*i+11+mod/2]);
-			s16[mod*i+11+mod/2] <= max(s15[mod*i+11] , s15[mod*i+11+mod/2]);
-			s16[mod*i+12] <= min(s15[mod*i+12] , s15[mod*i+12+mod/2]);
-			s16[mod*i+12+mod/2] <= max(s15[mod*i+12] , s15[mod*i+12+mod/2]);
-			s16[mod*i+13] <= min(s15[mod*i+13] , s15[mod*i+13+mod/2]);
-			s16[mod*i+13+mod/2] <= max(s15[mod*i+13] , s15[mod*i+13+mod/2]);
-			s16[mod*i+14] <= min(s15[mod*i+14] , s15[mod*i+14+mod/2]);
-			s16[mod*i+14+mod/2] <= max(s15[mod*i+14] , s15[mod*i+14+mod/2]);
-			s16[mod*i+15] <= min(s15[mod*i+15] , s15[mod*i+15+mod/2]);
-			s16[mod*i+15+mod/2] <= max(s15[mod*i+15] , s15[mod*i+15+mod/2]);
-			s16[mod*i+16] <= min(s15[mod*i+16] , s15[mod*i+16+mod/2]);
-			s16[mod*i+16+mod/2] <= max(s15[mod*i+16] , s15[mod*i+16+mod/2]);
-			s16[mod*i+17] <= min(s15[mod*i+17] , s15[mod*i+17+mod/2]);
-			s16[mod*i+17+mod/2] <= max(s15[mod*i+17] , s15[mod*i+17+mod/2]);
-			s16[mod*i+18] <= min(s15[mod*i+18] , s15[mod*i+18+mod/2]);
-			s16[mod*i+18+mod/2] <= max(s15[mod*i+18] , s15[mod*i+18+mod/2]);
-			s16[mod*i+19] <= min(s15[mod*i+19] , s15[mod*i+19+mod/2]);
-			s16[mod*i+19+mod/2] <= max(s15[mod*i+19] , s15[mod*i+19+mod/2]);
-			s16[mod*i+20] <= min(s15[mod*i+20] , s15[mod*i+20+mod/2]);
-			s16[mod*i+20+mod/2] <= max(s15[mod*i+20] , s15[mod*i+20+mod/2]);
-			s16[mod*i+21] <= min(s15[mod*i+21] , s15[mod*i+21+mod/2]);
-			s16[mod*i+21+mod/2] <= max(s15[mod*i+21] , s15[mod*i+21+mod/2]);
-			s16[mod*i+22] <= min(s15[mod*i+22] , s15[mod*i+22+mod/2]);
-			s16[mod*i+22+mod/2] <= max(s15[mod*i+22] , s15[mod*i+22+mod/2]);
-			s16[mod*i+23] <= min(s15[mod*i+23] , s15[mod*i+23+mod/2]);
-			s16[mod*i+23+mod/2] <= max(s15[mod*i+23] , s15[mod*i+23+mod/2]);
-			s16[mod*i+24] <= min(s15[mod*i+24] , s15[mod*i+24+mod/2]);
-			s16[mod*i+24+mod/2] <= max(s15[mod*i+24] , s15[mod*i+24+mod/2]);
-			s16[mod*i+25] <= min(s15[mod*i+25] , s15[mod*i+25+mod/2]);
-			s16[mod*i+25+mod/2] <= max(s15[mod*i+25] , s15[mod*i+25+mod/2]);
-			s16[mod*i+26] <= min(s15[mod*i+26] , s15[mod*i+26+mod/2]);
-			s16[mod*i+26+mod/2] <= max(s15[mod*i+26] , s15[mod*i+26+mod/2]);
-			s16[mod*i+27] <= min(s15[mod*i+27] , s15[mod*i+27+mod/2]);
-			s16[mod*i+27+mod/2] <= max(s15[mod*i+27] , s15[mod*i+27+mod/2]);
-			s16[mod*i+28] <= min(s15[mod*i+28] , s15[mod*i+28+mod/2]);
-			s16[mod*i+28+mod/2] <= max(s15[mod*i+28] , s15[mod*i+28+mod/2]);
-			s16[mod*i+29] <= min(s15[mod*i+29] , s15[mod*i+29+mod/2]);
-			s16[mod*i+29+mod/2] <= max(s15[mod*i+29] , s15[mod*i+29+mod/2]);
-			s16[mod*i+30] <= min(s15[mod*i+30] , s15[mod*i+30+mod/2]);
-			s16[mod*i+30+mod/2] <= max(s15[mod*i+30] , s15[mod*i+30+mod/2]);
-			s16[mod*i+31] <= min(s15[mod*i+31] , s15[mod*i+31+mod/2]);
-			s16[mod*i+31+mod/2] <= max(s15[mod*i+31] , s15[mod*i+31+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s16[mod*i+j] <= min(s15[mod*i+j] , s15[mod*i+j+mod/2]);
+			s16[mod*i+j+mod/2] <= max(s15[mod*i+j] , s15[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s16[mod*i+0] <= max(s15[mod*i+0] , s15[mod*i+0+mod/2]);
-			s16[mod*i+0+mod/2] <= min(s15[mod*i+0] , s15[mod*i+0+mod/2]);
-			s16[mod*i+1] <= max(s15[mod*i+1] , s15[mod*i+1+mod/2]);
-			s16[mod*i+1+mod/2] <= min(s15[mod*i+1] , s15[mod*i+1+mod/2]);
-			s16[mod*i+2] <= max(s15[mod*i+2] , s15[mod*i+2+mod/2]);
-			s16[mod*i+2+mod/2] <= min(s15[mod*i+2] , s15[mod*i+2+mod/2]);
-			s16[mod*i+3] <= max(s15[mod*i+3] , s15[mod*i+3+mod/2]);
-			s16[mod*i+3+mod/2] <= min(s15[mod*i+3] , s15[mod*i+3+mod/2]);
-			s16[mod*i+4] <= max(s15[mod*i+4] , s15[mod*i+4+mod/2]);
-			s16[mod*i+4+mod/2] <= min(s15[mod*i+4] , s15[mod*i+4+mod/2]);
-			s16[mod*i+5] <= max(s15[mod*i+5] , s15[mod*i+5+mod/2]);
-			s16[mod*i+5+mod/2] <= min(s15[mod*i+5] , s15[mod*i+5+mod/2]);
-			s16[mod*i+6] <= max(s15[mod*i+6] , s15[mod*i+6+mod/2]);
-			s16[mod*i+6+mod/2] <= min(s15[mod*i+6] , s15[mod*i+6+mod/2]);
-			s16[mod*i+7] <= max(s15[mod*i+7] , s15[mod*i+7+mod/2]);
-			s16[mod*i+7+mod/2] <= min(s15[mod*i+7] , s15[mod*i+7+mod/2]);
-			s16[mod*i+8] <= max(s15[mod*i+8] , s15[mod*i+8+mod/2]);
-			s16[mod*i+8+mod/2] <= min(s15[mod*i+8] , s15[mod*i+8+mod/2]);
-			s16[mod*i+9] <= max(s15[mod*i+9] , s15[mod*i+9+mod/2]);
-			s16[mod*i+9+mod/2] <= min(s15[mod*i+9] , s15[mod*i+9+mod/2]);
-			s16[mod*i+10] <= max(s15[mod*i+10] , s15[mod*i+10+mod/2]);
-			s16[mod*i+10+mod/2] <= min(s15[mod*i+10] , s15[mod*i+10+mod/2]);
-			s16[mod*i+11] <= max(s15[mod*i+11] , s15[mod*i+11+mod/2]);
-			s16[mod*i+11+mod/2] <= min(s15[mod*i+11] , s15[mod*i+11+mod/2]);
-			s16[mod*i+12] <= max(s15[mod*i+12] , s15[mod*i+12+mod/2]);
-			s16[mod*i+12+mod/2] <= min(s15[mod*i+12] , s15[mod*i+12+mod/2]);
-			s16[mod*i+13] <= max(s15[mod*i+13] , s15[mod*i+13+mod/2]);
-			s16[mod*i+13+mod/2] <= min(s15[mod*i+13] , s15[mod*i+13+mod/2]);
-			s16[mod*i+14] <= max(s15[mod*i+14] , s15[mod*i+14+mod/2]);
-			s16[mod*i+14+mod/2] <= min(s15[mod*i+14] , s15[mod*i+14+mod/2]);
-			s16[mod*i+15] <= max(s15[mod*i+15] , s15[mod*i+15+mod/2]);
-			s16[mod*i+15+mod/2] <= min(s15[mod*i+15] , s15[mod*i+15+mod/2]);
-			s16[mod*i+16] <= max(s15[mod*i+16] , s15[mod*i+16+mod/2]);
-			s16[mod*i+16+mod/2] <= min(s15[mod*i+16] , s15[mod*i+16+mod/2]);
-			s16[mod*i+17] <= max(s15[mod*i+17] , s15[mod*i+17+mod/2]);
-			s16[mod*i+17+mod/2] <= min(s15[mod*i+17] , s15[mod*i+17+mod/2]);
-			s16[mod*i+18] <= max(s15[mod*i+18] , s15[mod*i+18+mod/2]);
-			s16[mod*i+18+mod/2] <= min(s15[mod*i+18] , s15[mod*i+18+mod/2]);
-			s16[mod*i+19] <= max(s15[mod*i+19] , s15[mod*i+19+mod/2]);
-			s16[mod*i+19+mod/2] <= min(s15[mod*i+19] , s15[mod*i+19+mod/2]);
-			s16[mod*i+20] <= max(s15[mod*i+20] , s15[mod*i+20+mod/2]);
-			s16[mod*i+20+mod/2] <= min(s15[mod*i+20] , s15[mod*i+20+mod/2]);
-			s16[mod*i+21] <= max(s15[mod*i+21] , s15[mod*i+21+mod/2]);
-			s16[mod*i+21+mod/2] <= min(s15[mod*i+21] , s15[mod*i+21+mod/2]);
-			s16[mod*i+22] <= max(s15[mod*i+22] , s15[mod*i+22+mod/2]);
-			s16[mod*i+22+mod/2] <= min(s15[mod*i+22] , s15[mod*i+22+mod/2]);
-			s16[mod*i+23] <= max(s15[mod*i+23] , s15[mod*i+23+mod/2]);
-			s16[mod*i+23+mod/2] <= min(s15[mod*i+23] , s15[mod*i+23+mod/2]);
-			s16[mod*i+24] <= max(s15[mod*i+24] , s15[mod*i+24+mod/2]);
-			s16[mod*i+24+mod/2] <= min(s15[mod*i+24] , s15[mod*i+24+mod/2]);
-			s16[mod*i+25] <= max(s15[mod*i+25] , s15[mod*i+25+mod/2]);
-			s16[mod*i+25+mod/2] <= min(s15[mod*i+25] , s15[mod*i+25+mod/2]);
-			s16[mod*i+26] <= max(s15[mod*i+26] , s15[mod*i+26+mod/2]);
-			s16[mod*i+26+mod/2] <= min(s15[mod*i+26] , s15[mod*i+26+mod/2]);
-			s16[mod*i+27] <= max(s15[mod*i+27] , s15[mod*i+27+mod/2]);
-			s16[mod*i+27+mod/2] <= min(s15[mod*i+27] , s15[mod*i+27+mod/2]);
-			s16[mod*i+28] <= max(s15[mod*i+28] , s15[mod*i+28+mod/2]);
-			s16[mod*i+28+mod/2] <= min(s15[mod*i+28] , s15[mod*i+28+mod/2]);
-			s16[mod*i+29] <= max(s15[mod*i+29] , s15[mod*i+29+mod/2]);
-			s16[mod*i+29+mod/2] <= min(s15[mod*i+29] , s15[mod*i+29+mod/2]);
-			s16[mod*i+30] <= max(s15[mod*i+30] , s15[mod*i+30+mod/2]);
-			s16[mod*i+30+mod/2] <= min(s15[mod*i+30] , s15[mod*i+30+mod/2]);
-			s16[mod*i+31] <= max(s15[mod*i+31] , s15[mod*i+31+mod/2]);
-			s16[mod*i+31+mod/2] <= min(s15[mod*i+31] , s15[mod*i+31+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s16[mod*i+j] <= max(s15[mod*i+j] , s15[mod*i+j+mod/2]);
+			s16[mod*i+j+mod/2] <= min(s15[mod*i+j] , s15[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p16.enq(1);
@@ -620,72 +413,16 @@ rule _Q55;
 	let mod = 32;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/2)%2 == 0) begin
-			s17[mod*i+0] <= min(s16[mod*i+0] , s16[mod*i+0+mod/2]);
-			s17[mod*i+0+mod/2] <= max(s16[mod*i+0] , s16[mod*i+0+mod/2]);
-			s17[mod*i+1] <= min(s16[mod*i+1] , s16[mod*i+1+mod/2]);
-			s17[mod*i+1+mod/2] <= max(s16[mod*i+1] , s16[mod*i+1+mod/2]);
-			s17[mod*i+2] <= min(s16[mod*i+2] , s16[mod*i+2+mod/2]);
-			s17[mod*i+2+mod/2] <= max(s16[mod*i+2] , s16[mod*i+2+mod/2]);
-			s17[mod*i+3] <= min(s16[mod*i+3] , s16[mod*i+3+mod/2]);
-			s17[mod*i+3+mod/2] <= max(s16[mod*i+3] , s16[mod*i+3+mod/2]);
-			s17[mod*i+4] <= min(s16[mod*i+4] , s16[mod*i+4+mod/2]);
-			s17[mod*i+4+mod/2] <= max(s16[mod*i+4] , s16[mod*i+4+mod/2]);
-			s17[mod*i+5] <= min(s16[mod*i+5] , s16[mod*i+5+mod/2]);
-			s17[mod*i+5+mod/2] <= max(s16[mod*i+5] , s16[mod*i+5+mod/2]);
-			s17[mod*i+6] <= min(s16[mod*i+6] , s16[mod*i+6+mod/2]);
-			s17[mod*i+6+mod/2] <= max(s16[mod*i+6] , s16[mod*i+6+mod/2]);
-			s17[mod*i+7] <= min(s16[mod*i+7] , s16[mod*i+7+mod/2]);
-			s17[mod*i+7+mod/2] <= max(s16[mod*i+7] , s16[mod*i+7+mod/2]);
-			s17[mod*i+8] <= min(s16[mod*i+8] , s16[mod*i+8+mod/2]);
-			s17[mod*i+8+mod/2] <= max(s16[mod*i+8] , s16[mod*i+8+mod/2]);
-			s17[mod*i+9] <= min(s16[mod*i+9] , s16[mod*i+9+mod/2]);
-			s17[mod*i+9+mod/2] <= max(s16[mod*i+9] , s16[mod*i+9+mod/2]);
-			s17[mod*i+10] <= min(s16[mod*i+10] , s16[mod*i+10+mod/2]);
-			s17[mod*i+10+mod/2] <= max(s16[mod*i+10] , s16[mod*i+10+mod/2]);
-			s17[mod*i+11] <= min(s16[mod*i+11] , s16[mod*i+11+mod/2]);
-			s17[mod*i+11+mod/2] <= max(s16[mod*i+11] , s16[mod*i+11+mod/2]);
-			s17[mod*i+12] <= min(s16[mod*i+12] , s16[mod*i+12+mod/2]);
-			s17[mod*i+12+mod/2] <= max(s16[mod*i+12] , s16[mod*i+12+mod/2]);
-			s17[mod*i+13] <= min(s16[mod*i+13] , s16[mod*i+13+mod/2]);
-			s17[mod*i+13+mod/2] <= max(s16[mod*i+13] , s16[mod*i+13+mod/2]);
-			s17[mod*i+14] <= min(s16[mod*i+14] , s16[mod*i+14+mod/2]);
-			s17[mod*i+14+mod/2] <= max(s16[mod*i+14] , s16[mod*i+14+mod/2]);
-			s17[mod*i+15] <= min(s16[mod*i+15] , s16[mod*i+15+mod/2]);
-			s17[mod*i+15+mod/2] <= max(s16[mod*i+15] , s16[mod*i+15+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s17[mod*i+j] <= min(s16[mod*i+j] , s16[mod*i+j+mod/2]);
+			s17[mod*i+j+mod/2] <= max(s16[mod*i+j] , s16[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s17[mod*i+0] <= max(s16[mod*i+0] , s16[mod*i+0+mod/2]);
-			s17[mod*i+0+mod/2] <= min(s16[mod*i+0] , s16[mod*i+0+mod/2]);
-			s17[mod*i+1] <= max(s16[mod*i+1] , s16[mod*i+1+mod/2]);
-			s17[mod*i+1+mod/2] <= min(s16[mod*i+1] , s16[mod*i+1+mod/2]);
-			s17[mod*i+2] <= max(s16[mod*i+2] , s16[mod*i+2+mod/2]);
-			s17[mod*i+2+mod/2] <= min(s16[mod*i+2] , s16[mod*i+2+mod/2]);
-			s17[mod*i+3] <= max(s16[mod*i+3] , s16[mod*i+3+mod/2]);
-			s17[mod*i+3+mod/2] <= min(s16[mod*i+3] , s16[mod*i+3+mod/2]);
-			s17[mod*i+4] <= max(s16[mod*i+4] , s16[mod*i+4+mod/2]);
-			s17[mod*i+4+mod/2] <= min(s16[mod*i+4] , s16[mod*i+4+mod/2]);
-			s17[mod*i+5] <= max(s16[mod*i+5] , s16[mod*i+5+mod/2]);
-			s17[mod*i+5+mod/2] <= min(s16[mod*i+5] , s16[mod*i+5+mod/2]);
-			s17[mod*i+6] <= max(s16[mod*i+6] , s16[mod*i+6+mod/2]);
-			s17[mod*i+6+mod/2] <= min(s16[mod*i+6] , s16[mod*i+6+mod/2]);
-			s17[mod*i+7] <= max(s16[mod*i+7] , s16[mod*i+7+mod/2]);
-			s17[mod*i+7+mod/2] <= min(s16[mod*i+7] , s16[mod*i+7+mod/2]);
-			s17[mod*i+8] <= max(s16[mod*i+8] , s16[mod*i+8+mod/2]);
-			s17[mod*i+8+mod/2] <= min(s16[mod*i+8] , s16[mod*i+8+mod/2]);
-			s17[mod*i+9] <= max(s16[mod*i+9] , s16[mod*i+9+mod/2]);
-			s17[mod*i+9+mod/2] <= min(s16[mod*i+9] , s16[mod*i+9+mod/2]);
-			s17[mod*i+10] <= max(s16[mod*i+10] , s16[mod*i+10+mod/2]);
-			s17[mod*i+10+mod/2] <= min(s16[mod*i+10] , s16[mod*i+10+mod/2]);
-			s17[mod*i+11] <= max(s16[mod*i+11] , s16[mod*i+11+mod/2]);
-			s17[mod*i+11+mod/2] <= min(s16[mod*i+11] , s16[mod*i+11+mod/2]);
-			s17[mod*i+12] <= max(s16[mod*i+12] , s16[mod*i+12+mod/2]);
-			s17[mod*i+12+mod/2] <= min(s16[mod*i+12] , s16[mod*i+12+mod/2]);
-			s17[mod*i+13] <= max(s16[mod*i+13] , s16[mod*i+13+mod/2]);
-			s17[mod*i+13+mod/2] <= min(s16[mod*i+13] , s16[mod*i+13+mod/2]);
-			s17[mod*i+14] <= max(s16[mod*i+14] , s16[mod*i+14+mod/2]);
-			s17[mod*i+14+mod/2] <= min(s16[mod*i+14] , s16[mod*i+14+mod/2]);
-			s17[mod*i+15] <= max(s16[mod*i+15] , s16[mod*i+15+mod/2]);
-			s17[mod*i+15+mod/2] <= min(s16[mod*i+15] , s16[mod*i+15+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s17[mod*i+j] <= max(s16[mod*i+j] , s16[mod*i+j+mod/2]);
+			s17[mod*i+j+mod/2] <= min(s16[mod*i+j] , s16[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p17.enq(1);
@@ -695,40 +432,16 @@ rule _Q54;
 	let mod = 16;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/4)%2 == 0) begin
-			s18[mod*i+0] <= min(s17[mod*i+0] , s17[mod*i+0+mod/2]);
-			s18[mod*i+0+mod/2] <= max(s17[mod*i+0] , s17[mod*i+0+mod/2]);
-			s18[mod*i+1] <= min(s17[mod*i+1] , s17[mod*i+1+mod/2]);
-			s18[mod*i+1+mod/2] <= max(s17[mod*i+1] , s17[mod*i+1+mod/2]);
-			s18[mod*i+2] <= min(s17[mod*i+2] , s17[mod*i+2+mod/2]);
-			s18[mod*i+2+mod/2] <= max(s17[mod*i+2] , s17[mod*i+2+mod/2]);
-			s18[mod*i+3] <= min(s17[mod*i+3] , s17[mod*i+3+mod/2]);
-			s18[mod*i+3+mod/2] <= max(s17[mod*i+3] , s17[mod*i+3+mod/2]);
-			s18[mod*i+4] <= min(s17[mod*i+4] , s17[mod*i+4+mod/2]);
-			s18[mod*i+4+mod/2] <= max(s17[mod*i+4] , s17[mod*i+4+mod/2]);
-			s18[mod*i+5] <= min(s17[mod*i+5] , s17[mod*i+5+mod/2]);
-			s18[mod*i+5+mod/2] <= max(s17[mod*i+5] , s17[mod*i+5+mod/2]);
-			s18[mod*i+6] <= min(s17[mod*i+6] , s17[mod*i+6+mod/2]);
-			s18[mod*i+6+mod/2] <= max(s17[mod*i+6] , s17[mod*i+6+mod/2]);
-			s18[mod*i+7] <= min(s17[mod*i+7] , s17[mod*i+7+mod/2]);
-			s18[mod*i+7+mod/2] <= max(s17[mod*i+7] , s17[mod*i+7+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s18[mod*i+j] <= min(s17[mod*i+j] , s17[mod*i+j+mod/2]);
+			s18[mod*i+j+mod/2] <= max(s17[mod*i+j] , s17[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s18[mod*i+0] <= max(s17[mod*i+0] , s17[mod*i+0+mod/2]);
-			s18[mod*i+0+mod/2] <= min(s17[mod*i+0] , s17[mod*i+0+mod/2]);
-			s18[mod*i+1] <= max(s17[mod*i+1] , s17[mod*i+1+mod/2]);
-			s18[mod*i+1+mod/2] <= min(s17[mod*i+1] , s17[mod*i+1+mod/2]);
-			s18[mod*i+2] <= max(s17[mod*i+2] , s17[mod*i+2+mod/2]);
-			s18[mod*i+2+mod/2] <= min(s17[mod*i+2] , s17[mod*i+2+mod/2]);
-			s18[mod*i+3] <= max(s17[mod*i+3] , s17[mod*i+3+mod/2]);
-			s18[mod*i+3+mod/2] <= min(s17[mod*i+3] , s17[mod*i+3+mod/2]);
-			s18[mod*i+4] <= max(s17[mod*i+4] , s17[mod*i+4+mod/2]);
-			s18[mod*i+4+mod/2] <= min(s17[mod*i+4] , s17[mod*i+4+mod/2]);
-			s18[mod*i+5] <= max(s17[mod*i+5] , s17[mod*i+5+mod/2]);
-			s18[mod*i+5+mod/2] <= min(s17[mod*i+5] , s17[mod*i+5+mod/2]);
-			s18[mod*i+6] <= max(s17[mod*i+6] , s17[mod*i+6+mod/2]);
-			s18[mod*i+6+mod/2] <= min(s17[mod*i+6] , s17[mod*i+6+mod/2]);
-			s18[mod*i+7] <= max(s17[mod*i+7] , s17[mod*i+7+mod/2]);
-			s18[mod*i+7+mod/2] <= min(s17[mod*i+7] , s17[mod*i+7+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s18[mod*i+j] <= max(s17[mod*i+j] , s17[mod*i+j+mod/2]);
+			s18[mod*i+j+mod/2] <= min(s17[mod*i+j] , s17[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p18.enq(1);
@@ -738,24 +451,16 @@ rule _Q53;
 	let mod = 8;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/8)%2 == 0) begin
-			s19[mod*i+0] <= min(s18[mod*i+0] , s18[mod*i+0+mod/2]);
-			s19[mod*i+0+mod/2] <= max(s18[mod*i+0] , s18[mod*i+0+mod/2]);
-			s19[mod*i+1] <= min(s18[mod*i+1] , s18[mod*i+1+mod/2]);
-			s19[mod*i+1+mod/2] <= max(s18[mod*i+1] , s18[mod*i+1+mod/2]);
-			s19[mod*i+2] <= min(s18[mod*i+2] , s18[mod*i+2+mod/2]);
-			s19[mod*i+2+mod/2] <= max(s18[mod*i+2] , s18[mod*i+2+mod/2]);
-			s19[mod*i+3] <= min(s18[mod*i+3] , s18[mod*i+3+mod/2]);
-			s19[mod*i+3+mod/2] <= max(s18[mod*i+3] , s18[mod*i+3+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s19[mod*i+j] <= min(s18[mod*i+j] , s18[mod*i+j+mod/2]);
+			s19[mod*i+j+mod/2] <= max(s18[mod*i+j] , s18[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s19[mod*i+0] <= max(s18[mod*i+0] , s18[mod*i+0+mod/2]);
-			s19[mod*i+0+mod/2] <= min(s18[mod*i+0] , s18[mod*i+0+mod/2]);
-			s19[mod*i+1] <= max(s18[mod*i+1] , s18[mod*i+1+mod/2]);
-			s19[mod*i+1+mod/2] <= min(s18[mod*i+1] , s18[mod*i+1+mod/2]);
-			s19[mod*i+2] <= max(s18[mod*i+2] , s18[mod*i+2+mod/2]);
-			s19[mod*i+2+mod/2] <= min(s18[mod*i+2] , s18[mod*i+2+mod/2]);
-			s19[mod*i+3] <= max(s18[mod*i+3] , s18[mod*i+3+mod/2]);
-			s19[mod*i+3+mod/2] <= min(s18[mod*i+3] , s18[mod*i+3+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s19[mod*i+j] <= max(s18[mod*i+j] , s18[mod*i+j+mod/2]);
+			s19[mod*i+j+mod/2] <= min(s18[mod*i+j] , s18[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p19.enq(1);
@@ -765,16 +470,16 @@ rule _Q52;
 	let mod = 4;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/16)%2 == 0) begin
-			s20[mod*i+0] <= min(s19[mod*i+0] , s19[mod*i+0+mod/2]);
-			s20[mod*i+0+mod/2] <= max(s19[mod*i+0] , s19[mod*i+0+mod/2]);
-			s20[mod*i+1] <= min(s19[mod*i+1] , s19[mod*i+1+mod/2]);
-			s20[mod*i+1+mod/2] <= max(s19[mod*i+1] , s19[mod*i+1+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s20[mod*i+j] <= min(s19[mod*i+j] , s19[mod*i+j+mod/2]);
+			s20[mod*i+j+mod/2] <= max(s19[mod*i+j] , s19[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s20[mod*i+0] <= max(s19[mod*i+0] , s19[mod*i+0+mod/2]);
-			s20[mod*i+0+mod/2] <= min(s19[mod*i+0] , s19[mod*i+0+mod/2]);
-			s20[mod*i+1] <= max(s19[mod*i+1] , s19[mod*i+1+mod/2]);
-			s20[mod*i+1+mod/2] <= min(s19[mod*i+1] , s19[mod*i+1+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s20[mod*i+j] <= max(s19[mod*i+j] , s19[mod*i+j+mod/2]);
+			s20[mod*i+j+mod/2] <= min(s19[mod*i+j] , s19[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p20.enq(1);
@@ -784,15 +489,152 @@ rule _Q51;
 	let mod = 2;
 	for(int i=0; i < L0/mod; i = i + 1) begin
 		if ((i/32)%2 == 0) begin
-			s21[mod*i+0] <= min(s20[mod*i+0] , s20[mod*i+0+mod/2]);
-			s21[mod*i+0+mod/2] <= max(s20[mod*i+0] , s20[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s21[mod*i+j] <= min(s20[mod*i+j] , s20[mod*i+j+mod/2]);
+			s21[mod*i+j+mod/2] <= max(s20[mod*i+j] , s20[mod*i+j+mod/2]);
+			end
 		end
 		else begin
-			s21[mod*i+0] <= max(s20[mod*i+0] , s20[mod*i+0+mod/2]);
-			s21[mod*i+0+mod/2] <= min(s20[mod*i+0] , s20[mod*i+0+mod/2]);
+			for(int j=0; j< mod/2; j=j+1) begin
+			s21[mod*i+j] <= max(s20[mod*i+j] , s20[mod*i+j+mod/2]);
+			s21[mod*i+j+mod/2] <= min(s20[mod*i+j] , s20[mod*i+j+mod/2]);
+			end
 		end
 	end
 	p21.enq(1);
+endrule
+rule _Q67;
+	p21.deq;
+	let mod = 128;
+	for(int i=0; i < L0/mod; i = i + 1) begin
+		if ((i/1)%2 == 0) begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s22[mod*i+j] <= min(s21[mod*i+j] , s21[mod*i+j+mod/2]);
+			s22[mod*i+j+mod/2] <= max(s21[mod*i+j] , s21[mod*i+j+mod/2]);
+			end
+		end
+		else begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s22[mod*i+j] <= max(s21[mod*i+j] , s21[mod*i+j+mod/2]);
+			s22[mod*i+j+mod/2] <= min(s21[mod*i+j] , s21[mod*i+j+mod/2]);
+			end
+		end
+	end
+	p22.enq(1);
+endrule
+rule _Q66;
+	p22.deq;
+	let mod = 64;
+	for(int i=0; i < L0/mod; i = i + 1) begin
+		if ((i/2)%2 == 0) begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s23[mod*i+j] <= min(s22[mod*i+j] , s22[mod*i+j+mod/2]);
+			s23[mod*i+j+mod/2] <= max(s22[mod*i+j] , s22[mod*i+j+mod/2]);
+			end
+		end
+		else begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s23[mod*i+j] <= max(s22[mod*i+j] , s22[mod*i+j+mod/2]);
+			s23[mod*i+j+mod/2] <= min(s22[mod*i+j] , s22[mod*i+j+mod/2]);
+			end
+		end
+	end
+	p23.enq(1);
+endrule
+rule _Q65;
+	p23.deq;
+	let mod = 32;
+	for(int i=0; i < L0/mod; i = i + 1) begin
+		if ((i/4)%2 == 0) begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s24[mod*i+j] <= min(s23[mod*i+j] , s23[mod*i+j+mod/2]);
+			s24[mod*i+j+mod/2] <= max(s23[mod*i+j] , s23[mod*i+j+mod/2]);
+			end
+		end
+		else begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s24[mod*i+j] <= max(s23[mod*i+j] , s23[mod*i+j+mod/2]);
+			s24[mod*i+j+mod/2] <= min(s23[mod*i+j] , s23[mod*i+j+mod/2]);
+			end
+		end
+	end
+	p24.enq(1);
+endrule
+rule _Q64;
+	p24.deq;
+	let mod = 16;
+	for(int i=0; i < L0/mod; i = i + 1) begin
+		if ((i/8)%2 == 0) begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s25[mod*i+j] <= min(s24[mod*i+j] , s24[mod*i+j+mod/2]);
+			s25[mod*i+j+mod/2] <= max(s24[mod*i+j] , s24[mod*i+j+mod/2]);
+			end
+		end
+		else begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s25[mod*i+j] <= max(s24[mod*i+j] , s24[mod*i+j+mod/2]);
+			s25[mod*i+j+mod/2] <= min(s24[mod*i+j] , s24[mod*i+j+mod/2]);
+			end
+		end
+	end
+	p25.enq(1);
+endrule
+rule _Q63;
+	p25.deq;
+	let mod = 8;
+	for(int i=0; i < L0/mod; i = i + 1) begin
+		if ((i/16)%2 == 0) begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s26[mod*i+j] <= min(s25[mod*i+j] , s25[mod*i+j+mod/2]);
+			s26[mod*i+j+mod/2] <= max(s25[mod*i+j] , s25[mod*i+j+mod/2]);
+			end
+		end
+		else begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s26[mod*i+j] <= max(s25[mod*i+j] , s25[mod*i+j+mod/2]);
+			s26[mod*i+j+mod/2] <= min(s25[mod*i+j] , s25[mod*i+j+mod/2]);
+			end
+		end
+	end
+	p26.enq(1);
+endrule
+rule _Q62;
+	p26.deq;
+	let mod = 4;
+	for(int i=0; i < L0/mod; i = i + 1) begin
+		if ((i/32)%2 == 0) begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s27[mod*i+j] <= min(s26[mod*i+j] , s26[mod*i+j+mod/2]);
+			s27[mod*i+j+mod/2] <= max(s26[mod*i+j] , s26[mod*i+j+mod/2]);
+			end
+		end
+		else begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s27[mod*i+j] <= max(s26[mod*i+j] , s26[mod*i+j+mod/2]);
+			s27[mod*i+j+mod/2] <= min(s26[mod*i+j] , s26[mod*i+j+mod/2]);
+			end
+		end
+	end
+	p27.enq(1);
+endrule
+rule _Q61;
+	p27.deq;
+	let mod = 2;
+	for(int i=0; i < L0/mod; i = i + 1) begin
+		if ((i/64)%2 == 0) begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s28[mod*i+j] <= min(s27[mod*i+j] , s27[mod*i+j+mod/2]);
+			s28[mod*i+j+mod/2] <= max(s27[mod*i+j] , s27[mod*i+j+mod/2]);
+			end
+		end
+		else begin
+			for(int j=0; j< mod/2; j=j+1) begin
+			s28[mod*i+j] <= max(s27[mod*i+j] , s27[mod*i+j+mod/2]);
+			s28[mod*i+j+mod/2] <= min(s27[mod*i+j] , s27[mod*i+j+mod/2]);
+			end
+		end
+	end
+	p28.enq(1);
 endrule
 
 method Action put(Vector#(L0, Int#(16)) datas);
@@ -802,10 +644,10 @@ p0.enq(1);
 endmethod
 
 method ActionValue#(Vector#(L0, Int#(16))) get;
-p21.deq;
+p28.deq;
 Vector#(L0,Int#(16)) r = newVector;
 for(int i=0; i<L0; i = i + 1)
-r[i] = s21[i];
+r[i] = s28[i];
 return r;
 endmethod
 endmodule
