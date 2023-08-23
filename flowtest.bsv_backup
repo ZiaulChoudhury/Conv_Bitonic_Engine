@@ -1,0 +1,43 @@
+package flowtest;
+import FixedPoint:: *;
+import SpecialFIFOs:: * ;
+import Vector:: *;
+import FIFO:: *;
+import FIFOF:: *;
+import bitonic::*;
+import compact::*;
+
+#define L0 8
+(*synthesize*)
+module mkFlowTest();
+
+	//Bitonic px <- mkBitonic;
+	CompactTree px <- mkCompactTree;
+
+	rule push_data;
+		Vector#(L0,Int#(16)) r = newVector;
+		r[0] = 1;
+		r[1] = 12;
+		r[2] = 0;
+		r[3] = 0;
+		r[4] = 0;
+		r[5] = 4;
+		r[6] = 0;
+		r[7] = 2;
+		
+		//for(Int#(16) i=0; i<L0; i = i + 1)
+		//	r[i] = (L0 - i)%32;
+		px.put(unpack(pack(r)));
+	endrule
+
+ 	rule get_data;	
+		let d <- px.get;
+		Vector#(8, Int#(16)) dx = unpack(d);
+		for(int i=0; i<L0; i=i+1)
+		$display("%d",dx[i]);
+		$finish(0);
+        endrule
+
+endmodule
+endpackage
+
