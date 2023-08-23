@@ -75,3 +75,49 @@ program+="\nVector#(L0,Int#(16)) r = newVector;\
 file_path = "bitonic.bsv"
 with open(file_path, "w") as verilog_file:
     verilog_file.write(program)
+
+program = "package flowtest;\
+\nimport FIFO::*;\
+\nimport FIFOF::*;\
+\nimport datatypes::*;\
+\nimport SpecialFIFOs:: * ;\
+\nimport Real::*;\
+\nimport Vector::*;\
+\nimport bitonic::*;\
+\n#define L0 " +str(seq_length)+""
+import random
+def coin_flip():
+    return random.choice([0, 1])
+
+def generate_random_16bit_number(min_value, max_value):
+    if min_value < 0 or max_value > 65535:
+        raise ValueError("The range must be between 0 and 65535 (inclusive)")
+
+    return random.randint(min_value, max_value)
+
+program +="\n(*synthesize*)\
+\nmodule mkFlowTest();\
+\n\nBitonic px <- mkBitonic;\
+\n\n\trule push_data;\
+\n\t\tVector#(L0,Int#(16)) r = newVector;\
+\n\t\tfor (Int  # (16) i=0; i<L0; i = i + 1)"
+for i in range(0,seq_length):
+    program+="\n\t\tr["+str(i)+"]=" + str(generate_random_16bit_number(10,1000)) + ";"
+
+program +="\n\t\tpx.put(r);\
+\n\tendrule\
+\n\n\
+\n\trule get_data;\
+\n\tlet d <- px.get;\
+\n\t\tfor(int i=0; i<L0; i=i+1)\
+\n\t\t\t$display(\"%d\",d[i]);\
+\n\t\t\t$finish(0);\
+\n\tendrule\
+\n\
+\nendmodule\
+\nendpackage"
+
+file_path = "flowtest.bsv"
+with open(file_path, "w") as verilog_file:
+    verilog_file.write(program)
+

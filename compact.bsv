@@ -5,13 +5,14 @@ import datatypes::*;
 import SpecialFIFOs:: * ;
 import Real::*;
 import Vector::*;
-#define L0 64
-#define L1 32
-#define L2 16
-#define L3 8
-#define L4 4
-#define L5 2
-#define L6 1
+#define L0 128
+#define L1 64
+#define L2 32
+#define L3 16
+#define L4 8
+#define L5 4
+#define L6 2
+#define L7 1
 #define B0 16
 #define B1 32
 #define B2 64
@@ -19,9 +20,10 @@ import Vector::*;
 #define B4 256
 #define B5 512
 #define B6 1024
+#define B7 2048
 interface CompactTree;
         method Action put(Vector#(L0, Bit#(B0)) datas);
-        method ActionValue#(Bit#(B6)) get;
+        method ActionValue#(Bit#(B7)) get;
 endinterface
 
 (*synthesize*)
@@ -33,6 +35,7 @@ module mkCompactTree(CompactTree);
 	Reg#(Bit#(B4))  s4[L4];
 	Reg#(Bit#(B5))  s5[L5];
 	Reg#(Bit#(B6))  s6[L6];
+	Reg#(Bit#(B7))  s7[L7];
 	Reg#(Int#(16))  h0[L0];
 	Reg#(Int#(16))  h1[L1];
 	Reg#(Int#(16))  h2[L2];
@@ -40,6 +43,7 @@ module mkCompactTree(CompactTree);
 	Reg#(Int#(16))  h4[L4];
 	Reg#(Int#(16))  h5[L5];
 	Reg#(Int#(16))  h6[L6];
+	Reg#(Int#(16))  h7[L7];
 	FIFOF#(Bit#(1)) p0<- mkPipelineFIFOF;
 	FIFOF#(Bit#(1)) p1<- mkPipelineFIFOF;
 	FIFOF#(Bit#(1)) p2<- mkPipelineFIFOF;
@@ -48,6 +52,7 @@ module mkCompactTree(CompactTree);
 	FIFOF#(Bit#(1)) p5<- mkPipelineFIFOF;
 	FIFOF#(Bit#(1)) p6<- mkPipelineFIFOF;
 	FIFOF#(Bit#(1)) p7<- mkPipelineFIFOF;
+	FIFOF#(Bit#(1)) p8<- mkPipelineFIFOF;
 	for(int i =0; i<L0; i = i + 1) begin
 		s0[i] <- mkReg(0);
 		h0[i] <- mkReg(0);
@@ -75,6 +80,10 @@ module mkCompactTree(CompactTree);
 	for(int i =0; i<L6; i = i + 1) begin
 		s6[i] <- mkReg(0);
 		h6[i] <- mkReg(0);
+	end
+	for(int i =0; i<L7; i = i + 1) begin
+		s7[i] <- mkReg(0);
+		h7[i] <- mkReg(0);
 	end
 	rule _Q0;
 	for (int i=0; i<L0; i = i + 1)
@@ -135,6 +144,15 @@ module mkCompactTree(CompactTree);
 			s6[i] <= c;
 		end
 	endrule
+	rule _Q7;
+		for(int i=0; i < L7; i = i + 1) begin
+			h7[i] <= (h6[2*i] + h6[2*i+1]);
+			Bit#(B7) a = zeroExtend(s6[2*i]);
+			Bit#(B7) b = zeroExtend(s6[2*i+1]);
+			Bit#(B7) c = (b << (h6[2*i] << 4)) | a;
+			s7[i] <= c;
+		end
+	endrule
 	rule _act0;
 		p0.deq;
 		p1.enq(1);
@@ -163,6 +181,10 @@ module mkCompactTree(CompactTree);
 		p6.deq;
 		p7.enq(1);
 	endrule
+	rule _act7;
+		p7.deq;
+		p8.enq(1);
+	endrule
 
 method Action put(Vector#(L0, Bit#(B0)) datas);
 	for(int i=0;i<L0;i=i+1)
@@ -170,9 +192,9 @@ method Action put(Vector#(L0, Bit#(B0)) datas);
 	p0.enq(1);
 endmethod
 
-method ActionValue#(Bit#(B6)) get;
-	p7.deq;
-	return s6[0];
+method ActionValue#(Bit#(B7)) get;
+	p8.deq;
+	return s7[0];
 endmethod
 endmodule
 endpackage
