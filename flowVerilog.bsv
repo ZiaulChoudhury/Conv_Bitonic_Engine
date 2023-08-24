@@ -6,6 +6,7 @@ import FIFO:: *;
 import FIFOF:: *;
 import datatypes::*;
 import bitonic::*;
+import compact::*;
 
 #define L0 128
 #define MEMWORD 2048
@@ -16,7 +17,7 @@ endinterface
 
 (*synthesize*)
 module mkFlowTest(STDIN);
-        Bitonic px              <- mkBitonic;
+        CompactTree px              <- mkCompactTree;
         Reg#(Int#(16))  cache[L0];
         Reg#(UInt#(12)) sum_count <- mkReg(0);
         Reg#(Int#(16)) total_sum <- mkReg(0);
@@ -32,8 +33,9 @@ module mkFlowTest(STDIN);
 
         rule receive (sum_count==0);
                 let d <- px.get;
+		Vector#(L0,Int#(16)) dx = unpack(d);
                 for(int i=0; i < L0; i = i + 1)
-                        cache[i] <= d[i];
+                        cache[i] <= dx[i];
                 sum_count <= 1;
         endrule
 rule s1(sum_count == 1);
