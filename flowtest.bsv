@@ -10,8 +10,8 @@ import "BDPI" function Action fill_image();
 import "BDPI" function Int#(32) load_data(Int#(32) r_c);
 
 
-#define L0 4096 
-#define B 65536 
+#define L0 2048 
+#define B 32768 
 (*synthesize*)
 module mkFlowTest();
 

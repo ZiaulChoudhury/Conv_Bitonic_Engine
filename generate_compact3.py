@@ -168,7 +168,7 @@ program="package flowVerilog;\
 \n#define MEMWORD "+str(replications*16)+"\
 \ninterface STDIN;\
 \n        method Action put(DataType datas);\
-\n        method Bit#(16) get;\
+\n        method Bit#(16) get(Int#(32) index);\
 \nendinterface\
 \n\
 \n(*synthesize*)\
@@ -195,21 +195,15 @@ program="package flowVerilog;\
 \n                sum_count <= 1;\
 \n        endrule"
 
-for i in range(0,replications):
-    program+="\nrule s"+str(i+1)+"(sum_count == "+str(i+1)+");\
-\n  total_sum <= total_sum + cache["+str(i)+"];\
-\nendrule"
-
-
 program+="\n        method Action put(DataType datas) if(ent < L0);\
 \n                      Bit#(MEMWORD) x = zeroExtend(pack(datas));\
-\n                      inQ <= (inQ << 8) | x;\
+\n                      inQ <= (inQ << 16) | x;\
 \n                      ent <= ent + 1;\
 \n                  endmethod\
 \n\
 \n\
-\n        method Bit#(16) get;\
-\n                return pack(total_sum);\
+\n        method Bit#(16) get(Int#(32) index);\
+\n                return pack(cache[index]);\
 \n        endmethod\
 \nendmodule\
 \nendpackage"
