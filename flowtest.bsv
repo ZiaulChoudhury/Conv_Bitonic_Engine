@@ -5,93 +5,41 @@ import datatypes::*;
 import SpecialFIFOs:: * ;
 import Real::*;
 import Vector::*;
-import bitonic::*;
-#define L0 64
+import compact::*;
+import "BDPI" function Action fill_image();
+import "BDPI" function Int#(32) load_data(Int#(32) r_c);
+
+
+#define L0 4096 
+#define B 65536 
 (*synthesize*)
 module mkFlowTest();
 
-Bitonic px <- mkBitonic;
-
-	rule push_data;
-		Vector#(L0,Int#(32)) r = newVector;
-		for (Int  # (16) i=0; i<L0; i = i + 1)
-		r[0]=12848131;
-		r[1]=16585731;
-		r[2]=7937540;
-		r[3]=34414595;
-		r[4]=62003460;
-		r[5]=45549828;
-		r[6]=38798597;
-		r[7]=56825349;
-		r[8]=51316993;
-		r[9]=46075906;
-		r[10]=62461186;
-		r[11]=12977157;
-		r[12]=52632068;
-		r[13]=9964037;
-		r[14]=10290179;
-		r[15]=10946563;
-		r[16]=54461187;
-		r[17]=54072577;
-		r[18]=36962562;
-		r[19]=15799301;
-		r[20]=51714819;
-		r[21]=55117058;
-		r[22]=6362369;
-		r[23]=51121413;
-		r[24]=43260163;
-		r[25]=29884931;
-		r[26]=52953347;
-		r[27]=15864580;
-		r[28]=37820161;
-		r[29]=53022725;
-		r[30]=12979461;
-		r[31]=20644867;
-		r[32]=50465794;
-		r[33]=17503491;
-		r[34]=38471172;
-		r[35]=27465476;
-		r[36]=53480453;
-		r[37]=32050434;
-		r[38]=27466241;
-		r[39]=40698116;
-		r[40]=32447234;
-		r[41]=44571395;
-		r[42]=32512258;
-		r[43]=45355009;
-		r[44]=47843845;
-		r[45]=27528965;
-		r[46]=37095425;
-		r[47]=4066053;
-		r[48]=62325250;
-		r[49]=35198209;
-		r[50]=39459332;
-		r[51]=20317442;
-		r[52]=30673666;
-		r[53]=18220802;
-		r[54]=44566530;
-		r[55]=10883842;
-		r[56]=46531843;
-		r[57]=65340418;
-		r[58]=19728901;
-		r[59]=23074819;
-		r[60]=6036741;
-		r[61]=7013123;
-		r[62]=49152516;
-		r[63]=64225537;
-		px.put(r);
+CompactTree px <- mkCompactTree;
+Reg#(Bool)  init <- mkReg(False);
+Reg#(int)   index <- mkReg(0);
+Reg#(Bit#(B))    data <- mkReg(0);
+	rule init_data (init == False);
+		fill_image();
+		init <= True;
 	endrule
 
+	rule load_data (index < L0 && init == True);
+		Int#(16) dx = truncate(load_data(index));
+		index <= index + 1;
+		data <= (data << 16) | zeroExtend(pack(dx));
+	endrule
 
+	rule push_data (index == L0 && init == True);
+		px.put(unpack(pack(data)));
+		index <= index + 1;
+	endrule
 	rule get_data;
 	let d <- px.get;
-		for(int i=0; i<L0; i=i+1) begin
-			 Int#(8) dx = unpack(truncate(pack(d[i])));
-			 Int#(8) dx1 = unpack(truncate(pack(d[i])>>8));
-			$display("%d %d",dx, dx1);
-		end
-			$finish(0);
+	Vector#(L0, Int#(16)) dx = unpack(d);
+	for(int i=0; i<L0; i=i+1)
+	$display("%d",dx[i]);
+	$finish(0);
 	endrule
-
 endmodule
 endpackage
