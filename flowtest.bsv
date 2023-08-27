@@ -5,41 +5,37 @@ import datatypes::*;
 import SpecialFIFOs:: * ;
 import Real::*;
 import Vector::*;
-import compact::*;
-import "BDPI" function Action fill_image();
-import "BDPI" function Int#(32) load_data(Int#(32) r_c);
-
-
-#define L0 2048 
-#define B 32768 
+import bitonic::*;
+#define L0 8
 (*synthesize*)
 module mkFlowTest();
 
-CompactTree px <- mkCompactTree;
-Reg#(Bool)  init <- mkReg(False);
-Reg#(int)   index <- mkReg(0);
-Reg#(Bit#(B))    data <- mkReg(0);
-	rule init_data (init == False);
-		fill_image();
-		init <= True;
+Bitonic px <- mkBitonic;
+
+	rule push_data;
+		Vector#(L0,Int#(32)) r = newVector;
+		for (Int  # (16) i=0; i<L0; i = i + 1)
+		r[0]=22681090;
+		r[1]=56696579;
+		r[2]=34015746;
+		r[3]=35919363;
+		r[4]=51060482;
+		r[5]=58790658;
+		r[6]=58202885;
+		r[7]=8395267;
+		px.put(r);
 	endrule
 
-	rule load_data (index < L0 && init == True);
-		Int#(16) dx = truncate(load_data(index));
-		index <= index + 1;
-		data <= (data << 16) | zeroExtend(pack(dx));
-	endrule
 
-	rule push_data (index == L0 && init == True);
-		px.put(unpack(pack(data)));
-		index <= index + 1;
-	endrule
 	rule get_data;
 	let d <- px.get;
-	Vector#(L0, Int#(16)) dx = unpack(d);
-	for(int i=0; i<L0; i=i+1)
-	$display("%d",dx[i]);
-	$finish(0);
+		for(int i=0; i<L0; i=i+1) begin
+			 Int#(8) dx = unpack(truncate(pack(d[i])));
+			 Int#(8) dx1 = unpack(truncate(pack(d[i])>>8));
+			$display("%d %d",dx, dx1);
+		end
+			$finish(0);
 	endrule
+
 endmodule
 endpackage
