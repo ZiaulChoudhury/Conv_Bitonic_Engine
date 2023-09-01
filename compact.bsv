@@ -14,15 +14,15 @@ import Vector::*;
 #define L6 4
 #define L7 2
 #define L8 1
-#define B0 16
-#define B1 32
-#define B2 64
-#define B3 128
-#define B4 256
-#define B5 512
-#define B6 1024
-#define B7 2048
-#define B8 4096
+#define B0 8
+#define B1 16
+#define B2 32
+#define B3 64
+#define B4 128
+#define B5 256
+#define B6 512
+#define B7 1024
+#define B8 2048
 interface CompactTree;
         method Action put(Vector#(L0, Bit#(B0)) datas);
         method ActionValue#(Bit#(B8)) get;
@@ -104,7 +104,7 @@ module mkCompactTree(CompactTree);
 			h1[i] <= (h0[2*i] + h0[2*i+1]);
 			Bit#(B1) a = zeroExtend(s0[2*i]);
 			Bit#(B1) b = zeroExtend(s0[2*i+1]);
-			Bit#(B1) c = (b << (h0[2*i] << 4)) | a;
+			Bit#(B1) c = (b << (h0[2*i] << 3)) | a;
 			s1[i] <= c;
 		end
 	endrule
@@ -113,7 +113,7 @@ module mkCompactTree(CompactTree);
 			h2[i] <= (h1[2*i] + h1[2*i+1]);
 			Bit#(B2) a = zeroExtend(s1[2*i]);
 			Bit#(B2) b = zeroExtend(s1[2*i+1]);
-			Bit#(B2) c = (b << (h1[2*i] << 4)) | a;
+			Bit#(B2) c = (b << (h1[2*i] << 3)) | a;
 			s2[i] <= c;
 		end
 	endrule
@@ -122,7 +122,7 @@ module mkCompactTree(CompactTree);
 			h3[i] <= (h2[2*i] + h2[2*i+1]);
 			Bit#(B3) a = zeroExtend(s2[2*i]);
 			Bit#(B3) b = zeroExtend(s2[2*i+1]);
-			Bit#(B3) c = (b << (h2[2*i] << 4)) | a;
+			Bit#(B3) c = (b << (h2[2*i] << 3)) | a;
 			s3[i] <= c;
 		end
 	endrule
@@ -131,7 +131,7 @@ module mkCompactTree(CompactTree);
 			h4[i] <= (h3[2*i] + h3[2*i+1]);
 			Bit#(B4) a = zeroExtend(s3[2*i]);
 			Bit#(B4) b = zeroExtend(s3[2*i+1]);
-			Bit#(B4) c = (b << (h3[2*i] << 4)) | a;
+			Bit#(B4) c = (b << (h3[2*i] << 3)) | a;
 			s4[i] <= c;
 		end
 	endrule
@@ -140,7 +140,7 @@ module mkCompactTree(CompactTree);
 			h5[i] <= (h4[2*i] + h4[2*i+1]);
 			Bit#(B5) a = zeroExtend(s4[2*i]);
 			Bit#(B5) b = zeroExtend(s4[2*i+1]);
-			Bit#(B5) c = (b << (h4[2*i] << 4)) | a;
+			Bit#(B5) c = (b << (h4[2*i] << 3)) | a;
 			s5[i] <= c;
 		end
 	endrule
@@ -149,7 +149,7 @@ module mkCompactTree(CompactTree);
 			h6[i] <= (h5[2*i] + h5[2*i+1]);
 			Bit#(B6) a = zeroExtend(s5[2*i]);
 			Bit#(B6) b = zeroExtend(s5[2*i+1]);
-			Bit#(B6) c = (b << (h5[2*i] << 4)) | a;
+			Bit#(B6) c = (b << (h5[2*i] << 3)) | a;
 			s6[i] <= c;
 		end
 	endrule
@@ -158,7 +158,7 @@ module mkCompactTree(CompactTree);
 			h7[i] <= (h6[2*i] + h6[2*i+1]);
 			Bit#(B7) a = zeroExtend(s6[2*i]);
 			Bit#(B7) b = zeroExtend(s6[2*i+1]);
-			Bit#(B7) c = (b << (h6[2*i] << 4)) | a;
+			Bit#(B7) c = (b << (h6[2*i] << 3)) | a;
 			s7[i] <= c;
 		end
 	endrule
@@ -167,7 +167,7 @@ module mkCompactTree(CompactTree);
 			h8[i] <= (h7[2*i] + h7[2*i+1]);
 			Bit#(B8) a = zeroExtend(s7[2*i]);
 			Bit#(B8) b = zeroExtend(s7[2*i+1]);
-			Bit#(B8) c = (b << (h7[2*i] << 4)) | a;
+			Bit#(B8) c = (b << (h7[2*i] << 3)) | a;
 			s8[i] <= c;
 		end
 	endrule
