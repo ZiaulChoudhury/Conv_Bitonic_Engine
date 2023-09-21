@@ -133,8 +133,8 @@ program +="\n\t\tpx.put(r);\
 \n\trule get_data;\
 \n\tlet d <- px.get;\
 \n\t\tfor(int i=0; i<L0; i=i+1) begin\
-\n\t\t\t Int#(8) dx = unpack(truncate(pack(d[i])));\
-\n\t\t\t Int#(8) dx1 = unpack(truncate(pack(d[i])>>8));\
+\n\t\t\t Int#(4) dx = unpack(truncate(pack(d[i])));\
+\n\t\t\t Int#(4) dx1 = unpack(truncate(pack(d[i])>>4));\
 \n\t\t\t$display(\"%d %d\",dx, dx1);\
 \n\t\tend\
 \n\t\t\t$finish(0);\

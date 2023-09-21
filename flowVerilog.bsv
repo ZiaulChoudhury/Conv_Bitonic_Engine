@@ -6,8 +6,8 @@ import FIFO:: *;
 import FIFOF:: *;
 import datatypes::*;
 import bitonic::*;
-#define L0 128
-#define MEMWORD 2048
+#define L0 32
+#define MEMWORD 512
 interface STDIN;
         method Action put(Int#(16) datas);
         method Bit#(16) get(Int#(16) index);
